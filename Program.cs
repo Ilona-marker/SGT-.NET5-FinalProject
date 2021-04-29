@@ -8,7 +8,7 @@ namespace SGT_.NET5_FinalProject
     static void Main(string[] args)
     {
       //establish connection with DB
-      string connectionString = @"server=localhost;userid=user;password=password;database=final project";
+      string connectionString = @"server=localhost;userid=user;password=FRISTAD1969;database=final project";
       MySqlConnection connection = new MySqlConnection(connectionString);
 
       try
@@ -28,12 +28,15 @@ namespace SGT_.NET5_FinalProject
       Console.WriteLine("Welcome, {0}! Soon your journey begins...", user_name);
 
       //creating new entry in DB
-      /*
-      string queryString = "INSERT INTO `final project`.`progress` (user_name, status, progress) VALUES(@user_name, 'started', '1');";
+      
+      string queryString = 
+      @"INSERT INTO `final project`.`progress` 
+      (user_name, status, progress) 
+      VALUES(@user_name, 'started', '1');";
       MySqlCommand cmd = new MySqlCommand(queryString, connection);
       cmd.Parameters.AddWithValue("@user_name", user_name);
       cmd.ExecuteNonQuery();
-      */
+      
 
       //declare variable for current node
       //it equals to 1 as it is a starting point
@@ -57,26 +60,26 @@ namespace SGT_.NET5_FinalProject
 
         //TODO select infomation about current node
         //Console.WriteLine(@"You're staing near {0}");
+        string currentNode = @"
+        select * from `Final project`.`Locations`
+        where id = @cNode ";
+        cmd = new MySqlCommand(currentNode, connection);
+        cmd.Parameters.AddWithValue("@cNode", cNode);
+        MySqlDataReader reader = cmd.ExecuteReader();
+        reader.Read();
+        Console.WriteLine("You`re staying near " + reader[1] + "." + reader[3]);
+        reader.Close();
 
 
         //selecting connected nodes
-        string queryString = @"
+        queryString = @"
           select c.ending_node, l.name from `final project`.`connections` c
             join `final project`.`locations` l on l.id = c.ending_node
           where starting_node = @cNode";
-        MySqlCommand cmd = new MySqlCommand(queryString, connection);
+        cmd = new MySqlCommand(queryString, connection);
         cmd.Parameters.AddWithValue("@cNode", cNode);
-        MySqlDataReader reader = cmd.ExecuteReader();
+        reader = cmd.ExecuteReader();
 
-        //if nothing was selected
-        //close connection and exit program
-        /*
-        if ()) {
-          connection.Close();
-          Console.WriteLine("Nothing to show");
-          Environment.Exit(1);
-        };
-        */
 
         //if we found any connected node, printout results
         while (reader.Read())
