@@ -28,8 +28,8 @@ namespace SGT_.NET5_FinalProject
       Console.WriteLine("Welcome, {0}! Soon your journey begins...", user_name);
 
       
-      
-      
+    
+    
 
 
       //declare variable for current node
@@ -120,9 +120,29 @@ namespace SGT_.NET5_FinalProject
          cNode = newNode;
       };
 
+      //show user progress
+        MySqlCommand cmdFinal = new MySqlCommand(@"
+        select progress, status, l.name FROM Progress p 
+        JOIN Locations l ON l.id = p.progress
+        where user_name = @user_name ", connection);
+        cmdFinal.Parameters.AddWithValue("@user_name", user_name);
+        MySqlDataReader readerFinal = cmdFinal.ExecuteReader();
+        readerFinal.Read();
+        Console.WriteLine("progress \t| status \t| location name");
+         while (readerFinal.Read())
+                {
+                  uint progress = (uint)readerFinal[0];
+                  string status = (string)readerFinal[1];
+                  string name = (string)readerFinal[2];
+                  Console.WriteLine($"{progress} \t| {status} \t| {name}");
+                }
+                Console.WriteLine();
+        readerFinal.Close();
+        
       //close connection
       connection.Close();
-
+      
+      
     }
   }
 }
