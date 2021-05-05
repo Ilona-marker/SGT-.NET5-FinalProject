@@ -1,13 +1,4 @@
-CREATE DATABASE IF NOT EXISTS `Final project`;
-
-CREATE TABLE `Final project`.`Locations` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
-  `street` VARCHAR(255) NOT NULL,
-  `intro` VARCHAR(4000) NOT NULL,
-  PRIMARY KEY (`id`));
-
-INSERT INTO `Final project`.`Locations` (`id`, `name`, `street`, `intro`) VALUES 
+INSERT INTO `Final project`.`Locations` (`id`, `name`, `street`, `intro`) VALUES
 (1, 'London Eye', 'London   SE1 7PB', 'Huge observation wheel giving passengers a privileged bird\'s-eye view of the city\'s landmarks'),
 (2, 'SEA LIFE Centre London ', 'London  SE1 7PB', 'Sea life is an aquarium with a large collection of marine animals and is the largest collection of coral reefs in the UK.'),
 (3, 'Big Ben', 'London SW1A 0AA', 'Big Ben is the famous clock in London.'),
@@ -18,24 +9,7 @@ INSERT INTO `Final project`.`Locations` (`id`, `name`, `street`, `intro`) VALUES
 (8, 'Trafalgar Square', 'London WC2N 5DN', 'Trafalgar Square is one of the most important and bustling squares in London: designed in 1830 to commemorate the British victory against the French and Spanish fleets in the Battle of Trafalgar.'),
 (9, 'The National Gallery', 'London WC2N 5DN', 'The National Gallery is a truly amazing place to be, especially for art lovers. Founded in 1824, it houses a collection of over 2,300 paintings dating from the mid-13th century to 1900. Admission to the gallery is completely free. ');
 
-CREATE TABLE IF NOT EXISTS `Final project`.`Connections` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `starting_node` INT UNSIGNED NOT NULL,
-  `ending_node` INT UNSIGNED NOT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_Connections_Locations_idx` (`starting_node` ASC, `ending_node` ASC),
-  CONSTRAINT `fk_Connections_Locations`
-    FOREIGN KEY (`starting_node`)
-    REFERENCES `Final project`.`Locations` (`id`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-    FOREIGN KEY (`ending_node`)
-    REFERENCES `Final project`.`Locations` (`id`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE
-    );
-
-INSERT INTO `Final project`.`Connections` (`id`, `starting_node`, `ending_node`) VALUES 
+INSERT INTO `Final project`.`Connections` (`id`, `starting_node`, `ending_node`) VALUES
 (1, 1, 2),
 (2, 1, 4),
 (3, 1, 8),
@@ -50,19 +24,3 @@ INSERT INTO `Final project`.`Connections` (`id`, `starting_node`, `ending_node`)
 (12, 6, 9),
 (13, 7, 9),
 (14, 8, 9);
-
-
-CREATE TABLE IF NOT EXISTS `Final project`.`Progress` (
-  `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `user_name` VARCHAR(50) NULL,
-  `created_date` DATETIME(6) NULL,
-  `status` VARCHAR(15) NULL,
-  `progress` INT UNSIGNED NOT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `fk_Locations_Progress_idx` (`progress` ASC),
-  CONSTRAINT `fk_Locations_Progress`
-    FOREIGN KEY (`progress`)
-    REFERENCES `Final project`.`Locations` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION
-    );
