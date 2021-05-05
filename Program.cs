@@ -27,17 +27,9 @@ namespace SGT_.NET5_FinalProject
 
       Console.WriteLine("Welcome, {0}! Soon your journey begins...", user_name);
 
-      
-    
-    
-
-
       //declare variable for current node
       //it equals to 1 as it is a starting point
       int cNode = 1;
-
-      //select nodes from DB which connected to current node (cNode)
-      //and put it into the loop
 
       //flag that there are connected nodes
       //it is true, as the first node always has connection
@@ -45,22 +37,22 @@ namespace SGT_.NET5_FinalProject
 
       //while there are connected nodes
       //show them to user
-      while(thereAreNodes) {
+      while (thereAreNodes)
+      {
 
-        //ugly workaround
         //when we start searching connected nodes, set variable to false
         //that we had a chanse to exit loop, if nothing found
         thereAreNodes = false;
-      
-      //creating new entry in DB
-        string queryString = 
-       @"INSERT INTO `final project`.`progress` 
-       (user_name, created_date, status, progress) 
-       VALUES(@user_name, Now(), 'started', @cNode);";
-       MySqlCommand cmd = new MySqlCommand(queryString, connection);
-       cmd.Parameters.AddWithValue("@user_name", user_name);
-       cmd.Parameters.AddWithValue("@cNode", cNode);
-       cmd.ExecuteNonQuery(); 
+
+        //creating new entry in DB
+        string queryString =
+        @"INSERT INTO `final project`.`progress`
+        (user_name, created_date, status, progress)
+        VALUES(@user_name, Now(), 'started', @cNode);";
+        MySqlCommand cmd = new MySqlCommand(queryString, connection);
+        cmd.Parameters.AddWithValue("@user_name", user_name);
+        cmd.Parameters.AddWithValue("@cNode", cNode);
+        cmd.ExecuteNonQuery();
 
         //TODO select infomation about current node
         //Console.WriteLine(@"You're staing near {0}");
@@ -91,58 +83,54 @@ namespace SGT_.NET5_FinalProject
           Console.WriteLine(String.Format(@"Press [{0}] to go to {1}", reader[0], reader[1]));
           //set flag again to true
           thereAreNodes = true;
-
-
         };
         reader.Close();
-         
-        //creating new node integer variable
 
+        //creating new node integer variable
         int newNode = 0;
 
         //check if user puts integer
         if (thereAreNodes && !Int32.TryParse(Console.ReadLine(), out newNode))
         {
           Console.WriteLine("Choose once again!");
-        } 
-         else if(thereAreNodes)
-         {
+        }
+        else if (thereAreNodes)
+        {
           cmd = new MySqlCommand("UPDATE Progress SET status = 'visited' where progress = @cNode", connection);
           cmd.Parameters.AddWithValue("@cNode", cNode);
           cmd.ExecuteNonQuery();
-         }
-         else 
-         {
+        }
+        else
+        {
           cmd = new MySqlCommand("UPDATE Progress SET status = 'finished' where progress = @cNode", connection);
           cmd.Parameters.AddWithValue("@cNode", cNode);
           cmd.ExecuteNonQuery();
-         }
-         cNode = newNode;
+        }
+        cNode = newNode;
       };
 
       //show user progress
-        MySqlCommand cmdFinal = new MySqlCommand(@"
-        select progress, status, l.name FROM Progress p 
+      MySqlCommand cmdFinal = new MySqlCommand(@"
+        select progress, status, l.name FROM Progress p
         JOIN Locations l ON l.id = p.progress
         where user_name = @user_name ", connection);
-        cmdFinal.Parameters.AddWithValue("@user_name", user_name);
-        MySqlDataReader readerFinal = cmdFinal.ExecuteReader();
-        readerFinal.Read();
-        Console.WriteLine("progress \t| status \t| location name");
-         while (readerFinal.Read())
-                {
-                  uint progress = (uint)readerFinal[0];
-                  string status = (string)readerFinal[1];
-                  string name = (string)readerFinal[2];
-                  Console.WriteLine($"{progress} \t| {status} \t| {name}");
-                }
-                Console.WriteLine();
-        readerFinal.Close();
-        
+      cmdFinal.Parameters.AddWithValue("@user_name", user_name);
+      MySqlDataReader readerFinal = cmdFinal.ExecuteReader();
+      readerFinal.Read();
+      Console.WriteLine("progress \t| status \t| location name");
+      while (readerFinal.Read())
+      {
+        uint progress = (uint)readerFinal[0];
+        string status = (string)readerFinal[1];
+        string name = (string)readerFinal[2];
+        Console.WriteLine($"{progress} \t| {status} \t| {name}");
+      }
+      Console.WriteLine();
+      readerFinal.Close();
+
       //close connection
       connection.Close();
-      
-      
+
     }
   }
 }
