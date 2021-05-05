@@ -50,3 +50,19 @@ INSERT INTO `Final project`.`Connections` (`id`, `starting_node`, `ending_node`)
 (12, 6, 9),
 (13, 7, 9),
 (14, 8, 9);
+
+
+CREATE TABLE IF NOT EXISTS `Final project`.`Progress` (
+  `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_name` VARCHAR(50) NULL,
+  `created_date` DATETIME(6) NULL,
+  `status` VARCHAR(15) NULL,
+  `progress` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_Locations_Progress_idx` (`progress` ASC),
+  CONSTRAINT `fk_Locations_Progress`
+    FOREIGN KEY (`progress`)
+    REFERENCES `Final project`.`Locations` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+    );

@@ -27,16 +27,10 @@ namespace SGT_.NET5_FinalProject
 
       Console.WriteLine("Welcome, {0}! Soon your journey begins...", user_name);
 
-      //creating new entry in DB
       
-      string queryString = 
-      @"INSERT INTO `final project`.`progress` 
-      (user_name, status, progress) 
-      VALUES(@user_name, 'started', '1');";
-      MySqlCommand cmd = new MySqlCommand(queryString, connection);
-      cmd.Parameters.AddWithValue("@user_name", user_name);
-      cmd.ExecuteNonQuery();
       
+      
+
 
       //declare variable for current node
       //it equals to 1 as it is a starting point
@@ -57,6 +51,16 @@ namespace SGT_.NET5_FinalProject
         //when we start searching connected nodes, set variable to false
         //that we had a chanse to exit loop, if nothing found
         thereAreNodes = false;
+      
+      //creating new entry in DB
+        string queryString = 
+       @"INSERT INTO `final project`.`progress` 
+       (user_name, created_date, status, progress) 
+       VALUES(@user_name, Now(), 'started', @cNode);";
+       MySqlCommand cmd = new MySqlCommand(queryString, connection);
+       cmd.Parameters.AddWithValue("@user_name", user_name);
+       cmd.Parameters.AddWithValue("@cNode", cNode);
+       cmd.ExecuteNonQuery(); 
 
         //TODO select infomation about current node
         //Console.WriteLine(@"You're staing near {0}");
@@ -87,15 +91,33 @@ namespace SGT_.NET5_FinalProject
           Console.WriteLine(String.Format(@"Press [{0}] to go to {1}", reader[0], reader[1]));
           //set flag again to true
           thereAreNodes = true;
+
+
         };
         reader.Close();
+         
+        //creating new node integer variable
+
+        int newNode = 0;
 
         //check if user puts integer
-        if (thereAreNodes && !Int32.TryParse(Console.ReadLine(), out cNode))
+        if (thereAreNodes && !Int32.TryParse(Console.ReadLine(), out newNode))
         {
           Console.WriteLine("Choose once again!");
-        };
-
+        } 
+         else if(thereAreNodes)
+         {
+          cmd = new MySqlCommand("UPDATE Progress SET status = 'visited' where progress = @cNode", connection);
+          cmd.Parameters.AddWithValue("@cNode", cNode);
+          cmd.ExecuteNonQuery();
+         }
+         else 
+         {
+          cmd = new MySqlCommand("UPDATE Progress SET status = 'finished' where progress = @cNode", connection);
+          cmd.Parameters.AddWithValue("@cNode", cNode);
+          cmd.ExecuteNonQuery();
+         }
+         cNode = newNode;
       };
 
       //close connection
