@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 
 namespace SGT_.NET5_FinalProject
@@ -26,6 +28,40 @@ namespace SGT_.NET5_FinalProject
       Console.Write("Enter your name: ");
       string user_name = Console.ReadLine();
 
+      //check if user already exists in DB
+      string queryString =
+        @"select * from `final project`.`progress`
+        where user_name = @user_name
+        order by created_date desc
+        limit 1";
+      MySqlCommand cmd = new MySqlCommand(queryString, connection);
+      cmd.Parameters.AddWithValue("@user_name", user_name);
+      MySqlDataReader reader = cmd.ExecuteReader();
+      if(reader.Read()) {
+        reader.Close();
+        Console.WriteLine("User with username [" + user_name + "] already exists in DB");
+        Console.WriteLine(@"Your previous progress will be erased.
+        Press [Y] to continue
+        Press any other key to exit programm");
+
+        string user_response = Console.ReadLine();
+        //if user accepted, erase previous progress for this user
+        if(user_response.ToLower() == "y") {
+          queryString =
+          @"delete from `final project`.`progress`
+          where user_name = @user_name
+          ";
+          cmd = new MySqlCommand(queryString, connection);
+          cmd.Parameters.AddWithValue("@user_name", user_name);
+          cmd.ExecuteNonQuery();
+          reader.Close();
+        }
+        else {
+          Environment.Exit(1);
+        }
+      };
+
+
       Console.WriteLine("Welcome, {0}! Soon your journey begins...", user_name);
 
       //declare variable for current node
@@ -46,11 +82,11 @@ namespace SGT_.NET5_FinalProject
         thereAreNodes = false;
 
         //creating new entry in DB
-        string queryString =
+        queryString =
         @"INSERT INTO `final project`.`progress`
         (user_name, created_date, status, progress)
         VALUES(@user_name, Now(), 'started', @cNode);";
-        MySqlCommand cmd = new MySqlCommand(queryString, connection);
+        cmd = new MySqlCommand(queryString, connection);
         cmd.Parameters.AddWithValue("@user_name", user_name);
         cmd.Parameters.AddWithValue("@cNode", cNode);
         cmd.ExecuteNonQuery();
@@ -62,7 +98,7 @@ namespace SGT_.NET5_FinalProject
         where id = @cNode ";
         cmd = new MySqlCommand(currentNode, connection);
         cmd.Parameters.AddWithValue("@cNode", cNode);
-        MySqlDataReader reader = cmd.ExecuteReader();
+        reader = cmd.ExecuteReader();
         reader.Read();
         Console.WriteLine("You`re staying near " + reader[1] + "." + reader[3]);
         reader.Close();
@@ -77,7 +113,6 @@ namespace SGT_.NET5_FinalProject
         cmd.Parameters.AddWithValue("@cNode", cNode);
         reader = cmd.ExecuteReader();
 
-
         //if we found any connected node, printout results
         while (reader.Read())
         {
@@ -87,15 +122,25 @@ namespace SGT_.NET5_FinalProject
         };
         reader.Close();
 
-        //creating new node integer variable
-        int newNode = 0;
+        string newNode = cNode.ToString();
+        bool correct_input = false;
 
-        //check if user puts integer
-        if (thereAreNodes && !Int32.TryParse(Console.ReadLine(), out newNode))
+        while (!correct_input && thereAreNodes)
         {
-          Console.WriteLine("Choose once again!");
-        }
-        else if (thereAreNodes)
+          newNode = Console.ReadLine();
+          cmd = new MySqlCommand("select 1 from `final project`.`connections` where starting_node = @cNode and ending_node = @newNode", connection);
+          cmd.Parameters.AddWithValue("@cNode", cNode);
+          cmd.Parameters.AddWithValue("@newNode", newNode);
+          object result = cmd.ExecuteScalar();
+          if(result == null) {
+            Console.WriteLine("Wrong path chosen. Choose once again!");
+          }
+          else {
+            correct_input = true;
+          };
+        };
+
+        if (thereAreNodes)
         {
           cmd = new MySqlCommand("UPDATE Progress SET status = 'visited' where progress = @cNode", connection);
           cmd.Parameters.AddWithValue("@cNode", cNode);
@@ -107,7 +152,7 @@ namespace SGT_.NET5_FinalProject
           cmd.Parameters.AddWithValue("@cNode", cNode);
           cmd.ExecuteNonQuery();
         }
-        cNode = newNode;
+        cNode = Int32.Parse(newNode);
       };
 
       //show user progress
