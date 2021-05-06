@@ -19,6 +19,7 @@ namespace SGT_.NET5_FinalProject
       catch (Exception)
       {
         Console.WriteLine("Connection could not be established");
+        Environment.Exit(1);
       };
 
       //ask user's name and create a new entry in DB
@@ -116,7 +117,7 @@ namespace SGT_.NET5_FinalProject
         where user_name = @user_name ", connection);
       cmdFinal.Parameters.AddWithValue("@user_name", user_name);
       MySqlDataReader readerFinal = cmdFinal.ExecuteReader();
-      readerFinal.Read();
+
       Console.WriteLine("progress \t| status \t| location name");
       while (readerFinal.Read())
       {
